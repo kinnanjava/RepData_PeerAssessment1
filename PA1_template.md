@@ -6,59 +6,88 @@ output:
   html_document:
     keep_md: true
 ---
-```{r}
+
+```r
 echo = TRUE  
 ```
 
 # Loading and preprocessing the data
-```{r}
+
+```r
 activity_data <- read.csv(unz("activity.zip", "activity.csv"))
 str(activity_data)
 ```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+```
 Change date variable to from Factor to Date
 
-```{r}
+
+```r
 activity_data$date <- as.Date(activity_data$date, format = "%Y-%m-%d")
 ```
 
 # What is mean total number of steps taken per day?
 ## Find total number of steps taken on each day
-```{r}
+
+```r
 Total_Steps_Day <- aggregate(steps ~ date, rm.na = TRUE, data = activity_data, FUN = sum)
 ```
 ## Plot daily stps
-```{r}
+
+```r
 plot(Total_Steps_Day, type = "h", lwd = 10, lend = "square")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 
 ## mean and median Steps
-```{r}
+
+```r
 mean_steps <- aggregate(steps ~ date, rm.na = TRUE, data = activity_data, FUN = mean)
 median_steps <- aggregate(steps ~ date,  rm.na = TRUE,data = activity_data, FUN = median)
 ```
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 plot(aggregate(steps ~ interval, data = activity_data, FUN = mean), type = "l")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
 ## The 5-minute interval that, on average, contains the maximum number of steps
-```{r}
+
+```r
 max(activity_data$steps, na.rm = TRUE)
+```
+
+```
+## [1] 806
 ```
 
 ## Imputing missing values
 
 First check how many missing valeus are there
 
-```{r}
+
+```r
 sum(is.na(activity_data))
+```
+
+```
+## [1] 2304
 ```
 
 I am going to make a copy of activity_data and fill the Steps null values with mean of not null values for steps
 
-```{r}
+
+```r
 activity_refined <- activity_data
 activity_refined$steps[is.na(activity_refined$steps)] <- mean(na.omit(activity_refined$steps))
 ```
@@ -67,17 +96,21 @@ Make a histogram of the total number of steps taken each day and Calculate and r
 
 First we will find the total number of steps taken on activity_refined [With NAs Filled]
 
-```{r}
+
+```r
 Total_Steps_Day2 <- aggregate(steps ~ date, rm.na = TRUE, data = activity_refined, FUN = sum)
 ```
 
 Now we will plot both charts and compare
 
-```{r}
+
+```r
 par(mfrow=c(1,2))
 plot(Total_Steps_Day, type = "h", lwd = 5,lend = "square", main = "With NAs")
 plot(Total_Steps_Day2, type = "h", lwd = 5, lend = "square", main = "NAs filled")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 We can say filling the NA makes the distribution more homogeneous.
 
@@ -85,21 +118,20 @@ We can say filling the NA makes the distribution more homogeneous.
 
 We need to create a factor variable whether the activity date is a weekday or weekend
 
-```{r}
+
+```r
 activity_refined$weekday <- factor(weekdays(activity_refined$date))
 
 levels(activity_refined$weekday) <- list(weekday = c("Monday", "Tuesday",
                                               "Wednesday", "Thursday",
                                               "Friday"), weekend =
                                           c("Saturday", "Sunday"))
-
-
-
 ```
 
 now plot the graph and compare the activity between weekday and weekend
 
-```{r}
+
+```r
 par(mfrow = c(2, 1))
 
 with(activity_refined[activity_refined$weekday == "weekend",], plot(aggregate(steps ~ interval, FUN = mean), type = "l", main = "Weekends"))
@@ -107,6 +139,14 @@ with(activity_refined[activity_refined$weekday == "weekend",], plot(aggregate(st
 with(activity_refined[activity_refined$weekday == "weekday",], plot(aggregate(steps ~ interval, FUN = mean), type = "l", main = "Weekdays"))
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
+
+```r
 dev.off()
+```
+
+```
+## null device 
+##           1
 ```
